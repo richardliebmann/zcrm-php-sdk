@@ -1,3 +1,28 @@
+# richi2666 changes
+------------------------
+## goals
+Extend the current zoho php sdk
+* configurable settings (don't use the settings file)
+
+## how to use it (testing purpose only)
+
+in the composer.json file
+````
+...
+"repositories": [
+  {
+    "type": "vcs",
+    "url": "https://github.com/richi2666/zcrm-php-sdk"
+  }
+],
+...
+"require": {
+...
+ "richi2666/zcrm-php-sdk": "dev-master",
+...
+````
+
+
 #PHP SDK for Zoho CRM
 ----------------------
 PHP SDK for Zoho CRM APIs provides wrapper for Zoho CRM APIs. Hence invoking a Zoho CRM API from your client application is just a method call.It supports both single user as well as multi user authentication.
