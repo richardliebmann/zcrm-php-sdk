@@ -90,6 +90,15 @@ class ZCRMRecord
     }
 
     /**
+     * Method to check if the field value exists
+     * @param $apiName
+     * @return bool
+     */
+    public function hasFieldValue($apiName) {
+        return array_key_exists($apiName, $this->fieldNameVsValue);
+    }
+
+    /**
      * Method to set the field value for api name
      * @param $apiName,$value
      */

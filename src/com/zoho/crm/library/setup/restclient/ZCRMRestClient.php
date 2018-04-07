@@ -15,9 +15,14 @@ class ZCRMRestClient
 	{
 		return new ZCRMRestClient();
 	}
-	public static function initialize()
+
+    /**
+     * @param IZCRMConfig $config
+     * @param IZohoOAuthConfig $authconfig
+     */
+	public static function initialize($config = null, $authconfig = null)
 	{
-		ZCRMConfigUtil::initialize(true);
+		ZCRMConfigUtil::initialize(true, $config, $authconfig);
 	}
 	
 	public function getAllModules()

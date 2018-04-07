@@ -75,7 +75,7 @@ class ZohoOAuthClient
 			if(array_key_exists(ZohoOAuthConstants::ACCESS_TOKEN,$responseJSON))
 			{
 				$tokens = self::getTokensFromJSON($responseJSON);
-				$tokens->setUserEmailId(self::getUserEmailIdFromIAM($tokens->getAccessToken()));
+				// $tokens->setUserEmailId(self::getUserEmailIdFromIAM($tokens->getAccessToken()));
 				ZohoOAuth::getPersistenceHandlerInstance()->saveOAuthData($tokens);
 				return $tokens;
 			}
@@ -132,7 +132,7 @@ class ZohoOAuthClient
 		$zohoHttpCon->setUrl($url);
 		$zohoHttpCon->addParam(ZohoOAuthConstants::CLIENT_ID, $this->zohoOAuthParams->getClientId());
 		$zohoHttpCon->addParam(ZohoOAuthConstants::CLIENT_SECRET, $this->zohoOAuthParams->getClientSecret());
-		$zohoHttpCon->addParam(ZohoOAuthConstants::REDIRECT_URL, $this->zohoOAuthParams->getRedirectURL());
+		$zohoHttpCon->addParam(ZohoOAuthConstants::REDIRECT_URL, urlencode($this->zohoOAuthParams->getRedirectURL()));
 		return $zohoHttpCon;
 	}
 	
@@ -177,6 +177,8 @@ class ZohoOAuthClient
     	$connector->addHeadder(ZohoOAuthConstants::AUTHORIZATION, ZohoOAuthConstants::OAUTH_HEADER_PREFIX.$accessToken);
     	$apiResponse=$connector->get();
     	$jsonResponse=self::processResponse($apiResponse);
+
+    	print_r($jsonResponse);
     	
     	return $jsonResponse['Email'];
     }

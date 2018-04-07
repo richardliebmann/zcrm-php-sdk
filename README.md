@@ -1,5 +1,5 @@
 # richi2666 changes
-------------------------
+
 ## goals
 Extend the current zoho php sdk
 * configurable settings (don't use the settings file)
@@ -22,6 +22,25 @@ in the composer.json file
 ...
 ````
 
+## initialize Zoho Client
+
+````
+ZCRMRestClient::initialize(new ZCRMInMemoryConfig([
+    "apiBaseUrl" => "www.zohoapis.com",
+    "apiVersion" => "v2",
+    "sandbox" => "false",
+    "applicationLogFilePath" => "",
+    "currentUserEmail" => ""
+]), new ZohoOAuthInMemoryConfig([
+    "client_id" => "",
+    "client_secret" => "",
+    "redirect_uri" => "",
+    "accounts_url" => "",
+    "token_persistence_path" => "",
+    "access_type" => "offline",
+    "persistence_handler_class" => "ZohoOAuthPersistenceHandler"
+]));
+````
 
 #PHP SDK for Zoho CRM
 ----------------------

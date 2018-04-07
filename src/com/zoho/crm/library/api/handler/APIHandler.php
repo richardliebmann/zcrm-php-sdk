@@ -7,8 +7,8 @@ class APIHandler implements APIHandlerInterface
 	protected $requestMethod;
 	protected $urlPath;
 	
-	protected $requestHeaders;
-	protected $requestParams;
+	protected $requestHeaders=array();
+	protected $requestParams=array();
 	protected $requestBody;
 	protected $apiKey;
 	
@@ -34,7 +34,7 @@ class APIHandler implements APIHandlerInterface
 	}
 	
 	public function getRequestParams()
-	{
+    {
 		return $this->requestParams;
 	}
 	

@@ -6,11 +6,33 @@ require_once realpath(dirname(__FILE__)."/../clientapp/ZohoOAuthPersistenceHandl
 require_once realpath(dirname(__FILE__)."/../clientapp/ZohoOAuthPersistenceByFile.php");
 require_once realpath(dirname(__FILE__)."/../common/OAuthLogger.php");
 require_once 'ZohoOAuthClient.php';
+require_once 'ZohoOAuthFileConfig.php';
+require_once 'ZohoOAuthInMemoryConfig.php';
 
 class ZohoOAuth
 {
 
 	private static $configProperties =array();
+
+    /**
+     * @param $config IZohoOAuthConfig
+     */
+	public static function initializeWithConfig($config)
+    {
+        if($config == null) {
+            $config = new ZohoOAuthFileConfig(false);
+        }
+
+        self::$configProperties = $config->getOAuthCOnfigProperties();
+
+        $oAuthParams=new ZohoOAuthParams();
+
+        $oAuthParams->setAccessType(self::getConfigValue(ZohoOAuthConstants::ACCESS_TYPE));
+        $oAuthParams->setClientId(self::getConfigValue(ZohoOAuthConstants::CLIENT_ID));
+        $oAuthParams->setClientSecret(self::getConfigValue(ZohoOAuthConstants::CLIENT_SECRET));
+        $oAuthParams->setRedirectURL(self::getConfigValue(ZohoOAuthConstants::REDIRECT_URL));
+        ZohoOAuthClient::getInstance($oAuthParams);
+    }
 	
 	public static function initializeWithOutInputStream()
 	{
@@ -19,33 +41,17 @@ class ZohoOAuth
 	
 	public static function initialize($configFilePointer)
 	{
-		try
-		{
-			$configPath=realpath(dirname(__FILE__)."/../../../../resources/oauth_configuration.properties");
-			$filePointer=fopen($configPath,"r");
-			self::$configProperties = ZohoOAuthUtil::getFileContentAsMap($filePointer);
-			if($configFilePointer!=false)
-			{
-				$properties=ZohoOAuthUtil::getFileContentAsMap($configFilePointer);
-				foreach($properties as $key=>$value)
-				{
-					self::$configProperties[$key]=$value;
-				}
-			}
-			//self::$configProperties[ZohoOAuthConstants::IAM_URL]= "https://accounts.zoho.com";
-			$oAuthParams=new ZohoOAuthParams();
-			
-			$oAuthParams->setAccessType(self::getConfigValue(ZohoOAuthConstants::ACCESS_TYPE));
-			$oAuthParams->setClientId(self::getConfigValue(ZohoOAuthConstants::CLIENT_ID));
-			$oAuthParams->setClientSecret(self::getConfigValue(ZohoOAuthConstants::CLIENT_SECRET));
-			$oAuthParams->setRedirectURL(self::getConfigValue(ZohoOAuthConstants::REDIRECT_URL));
-			ZohoOAuthClient::getInstance($oAuthParams);
-		}
-		catch (IOException $ioe)
-		{
-			OAuthLogger::warn("Exception while initializing Zoho OAuth Client.. ". ioe);
-			throw ioe;
-		}
+        try
+        {
+            $config = new ZohoOAuthFileConfig($configFilePointer);
+
+            self::initializeWithConfig($config);
+        }
+        catch (IOException $ioe)
+        {
+            OAuthLogger::warn("Exception while initializing Zoho OAuth Client.. ". ioe);
+            throw ioe;
+        }
 	}
 	
 	public static function getConfigValue($key)
@@ -112,14 +118,34 @@ class ZohoOAuth
 	{
 		try
 		{
-			return ZohoOAuth::getConfigValue("token_persistence_path")!=""?new ZohoOAuthPersistenceByFile():new ZohoOAuthPersistenceHandler();
+		    if(ZohoOAuth::getConfigValue("token_persistence_path")!="")
+            {
+                new ZohoOAuthPersistenceByFile();
+            }
+            else if(ZohoOAuth::getConfigValue("persistence_handler_instance") != null) {
+                $handler = ZohoOAuth::getConfigValue("persistence_handler_instance");
+
+                return $handler;
+            }
+            else if(ZohoOAuth::getConfigValue("persistence_handler_class") != "") {
+		        $handler = ZohoOAuth::getConfigValue("persistence_handler_class");
+
+		        return new $handler();
+            }
+            else {
+		        return ZohoOAuthPersistenceHandler();
+            }
 		}
 		catch (Exception $ex)
 		{
 			throw new ZohoOAuthException($ex);
 		}
 	}
-	
+
+    /**
+     * @return ZohoOAuthClient
+     * @throws ZohoOAuthException
+     */
 	public static function getClientInstance()
 	{
 		if(ZohoOAuthClient::getInstanceWithOutParam() == null)
